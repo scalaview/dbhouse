@@ -9,6 +9,7 @@ def btc_histories():
     endpoint = 'https://min-api.cryptocompare.com/data/histoday'
     res = requests.get(endpoint + '?fsym=BTC&tsym=USD&limit=2000')
     hist = pd.DataFrame(res.json()['Data'])
+    print("finish")
     hist = hist.set_index('time')
     hist.index = pd.to_datetime(hist.index, unit='s')
     hist = hist.join(utils.ROC(hist['close'], 30))
