@@ -2,7 +2,7 @@ import pandas as pd
 from pandas_datareader import data as web
 from datetime import datetime
 import numpy as np
-
+from numpy import inf
 # Force Index
 def force_index(data_close, data_volume, ndays, syml='ForceIndex'):
     return pd.Series(data_close.diff(ndays) * data_volume / 100000, name=syml)
@@ -11,7 +11,7 @@ def force_index(data_close, data_volume, ndays, syml='ForceIndex'):
 def ROC(data_close, n, syml='ROC'):
     N = data_close.diff(n)
     D = data_close.shift(n)
-    return pd.Series(N/D, name=syml)
+    return pd.Series((N/D).replace([np.inf, -np.inf], 0), name=syml)
 
 
 # Commodity Channel Index
@@ -72,14 +72,12 @@ def prepare_data(df, target_col, window_len=10, zero_base=True, test_size=0.2):
     """ Prepare data for LSTM. """
     # train test split
     train_data, test_data = train_test_split(df, test_size=test_size)
-
     # extract window data
-    X_train = extract_window_data(train_data, window_len, zero_base)
-    X_test = extract_window_data(test_data, window_len, zero_base)
+    X_train = extract_window_data(train_data.drop(columns=[target_col]), window_len, zero_base)
+    X_test = extract_window_data(test_data.drop(columns=[target_col]), window_len, zero_base)
     # extract targets
     y_train = train_data[target_col][window_len:].values
     y_test = test_data[target_col][window_len:].values
-
     if zero_base:
         y_train = y_train / train_data[target_col][:-window_len].values - 1
         y_test = y_test / test_data[target_col][:-window_len].values - 1

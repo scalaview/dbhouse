@@ -8,8 +8,15 @@ from sqlalchemy.orm import sessionmaker
 def btc_histories():
     endpoint = 'https://min-api.cryptocompare.com/data/histoday'
     res = requests.get(endpoint + '?fsym=BTC&tsym=USD&limit=2000')
-    hist = pd.DataFrame(res.json()['Data'])
-    print("finish")
+    return data_struct(res.json()['Data'])
+
+def eos_histories():
+    endpoint = 'https://min-api.cryptocompare.com/data/histoday'
+    res = requests.get(endpoint + '?fsym=EOS&tsym=USD&limit=332')
+    return data_struct(res.json()['Data'])
+
+def data_struct(data):
+    hist = pd.DataFrame(data)
     hist = hist.set_index('time')
     hist.index = pd.to_datetime(hist.index, unit='s')
     hist = hist.join(utils.ROC(hist['close'], 30))
@@ -48,5 +55,5 @@ def stoce_daily_price(datas, market, fsymbol, tsymbol):
 
 
 if __name__ == '__main__':
-    datas = btc_histories()
-    stoce_daily_price(datas, "ALL", "BTC", "USDT")
+    # stoce_daily_price(btc_histories(), "ALL", "BTC", "USDT")
+    stoce_daily_price(eos_histories(), "ALL", "EOS", "USDT")
