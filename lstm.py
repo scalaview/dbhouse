@@ -34,6 +34,9 @@ if __name__ == '__main__':
     hist = pd.read_sql_query('SELECT `date`, open_price, high_price, low_price, close_price, volumeto, evm_7, evm_14, cci_30, roc_30, forceIndex_1 FROM daily_prices', models.engine)
     hist = hist.set_index('date')
     hist.index = pd.to_datetime(hist.index, unit='s')
+    hist = hist.join(pd.Series(hist['close_price'].shift(-1), name='look_back_1_close_price'))
+    hist = hist.drop(hist.index[len(hist)-1])
+
     np.random.seed(42)
     # data params
     window_len = 7
@@ -46,19 +49,14 @@ if __name__ == '__main__':
     loss = 'mae'
     dropout = 0.25
     optimizer = 'adam'
-    target_col = 'close_price'
+    target_col = 'look_back_1_close_price'
     train, test, X_train, X_test, y_train, y_test = utils.prepare_data(hist, target_col, window_len=window_len, zero_base=zero_base, test_size=test_size)
-    # print(X_train)
-
-    # print("============================")
-
-    # print(y_train)
-    # model = build_lstm_model(X_train, output_size=1, neurons=lstm_neurons, dropout=dropout, loss=loss, optimizer=optimizer)
-    # history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=1, shuffle=True)
-    # targets = test[target_col][window_len:]
-    # preds = model.predict(X_test).squeeze()
-    # maer = mean_absolute_error(preds, y_test)
-    # preds = test[target_col].values[:-window_len] * (preds + 1)
-    # preds = pd.Series(index=targets.index, data=preds)
-    # line_plot(targets, preds, 'actual', 'prediction', lw=3)
+    model = build_lstm_model(X_train, output_size=1, neurons=lstm_neurons, dropout=dropout, loss=loss, optimizer=optimizer)
+    history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=1, shuffle=True)
+    targets = test[target_col][window_len:]
+    preds = model.predict(X_test).squeeze()
+    maer = mean_absolute_error(preds, y_test)
+    preds = test[target_col].values[:-window_len] * (preds + 1)
+    preds = pd.Series(index=targets.index, data=preds)
+    line_plot(targets, preds, 'actual', 'prediction', lw=3)
 

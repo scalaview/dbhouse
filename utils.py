@@ -73,21 +73,12 @@ def prepare_data(df, target_col, window_len=10, zero_base=True, test_size=0.2):
     # train test split
     train_data, test_data = train_test_split(df, test_size=test_size)
 
-    X_train, y_train = create_dataset(train_data, 1)
-    X_test, y_test = create_dataset(test_data, 1)
-    print(y_train)
-    print(y_test)
     # extract window data
     X_train = extract_window_data(train_data, window_len, zero_base)
     X_test = extract_window_data(test_data, window_len, zero_base)
-    # print(X_train)
-    # print("============================")
-    # print(X_test)
-
     # extract targets
     y_train = train_data[target_col][window_len:].values
     y_test = test_data[target_col][window_len:].values
-
 
     if zero_base:
         y_train = y_train / train_data[target_col][:-window_len].values - 1
