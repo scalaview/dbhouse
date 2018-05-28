@@ -25,7 +25,7 @@ class DailyPrice(BaseModel, Base):
     high_price  = Column(Numeric(precision=8, scale=2, asdecimal=False, decimal_return_scale=None), default=0.00)
     low_price  = Column(Numeric(precision=8, scale=2, asdecimal=False, decimal_return_scale=None), default=0.00)
     close_price  = Column(Numeric(precision=8, scale=2, asdecimal=False, decimal_return_scale=None), default=0.00)
-    volumefrom  = Column(Numeric(precision=8, scale=2, asdecimal=False, decimal_return_scale=None), default=0.00)
+    volumefrom  = Column(Numeric(precision=16, scale=2, asdecimal=False, decimal_return_scale=None), default=0.00)
     volumeto  = Column(Numeric(precision=16, scale=2, asdecimal=False, decimal_return_scale=None), default=0.00)
     evm_7 = Column(Numeric(precision=16, scale=8, asdecimal=False, decimal_return_scale=None), default=0.00)
     evm_14 = Column(Numeric(precision=16, scale=8, asdecimal=False, decimal_return_scale=None), default=0.00)

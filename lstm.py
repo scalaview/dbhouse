@@ -29,13 +29,16 @@ def line_plot(line1, line2, label1=None, label2=None, title='', lw=2):
     ax.legend(loc='best', fontsize=18);
     plt.show()
 
-if __name__ == '__main__':
+
+def prepare_train_data(syml):
     import models
-    hist = pd.read_sql_query('SELECT `date`, open_price, high_price, low_price, close_price, volumeto FROM daily_prices WHERE id > 3827 AND fsymbol="EOS" AND tsymbol="USDT"', models.engine)
+    hist = pd.read_sql_query('SELECT `date`, open_price, high_price, low_price, close_price, volumeto, volumefrom FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT"', models.engine)
     hist = hist.set_index('date')
     hist.index = pd.to_datetime(hist.index, unit='s')
     hist = hist.join(pd.Series(hist['close_price'].shift(-1), name='look_back_1_close_price'))
-    hist = hist.fillna(0)
+    return hist.fillna(0)
+
+def run_train(hist):
     np.random.seed(42)
     # data params
     window_len = 7
@@ -64,4 +67,8 @@ if __name__ == '__main__':
     print(preds.tail())
     n_points = 7
     line_plot(targets[-n_points:], preds[-n_points:], 'actual', 'prediction', lw=3)
+
+if __name__ == '__main__':
+    run_train(prepare_train_data('EOS'))
+
 

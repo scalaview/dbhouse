@@ -12,7 +12,7 @@ def btc_histories():
 
 def eos_histories():
     endpoint = 'https://min-api.cryptocompare.com/data/histoday'
-    res = requests.get(endpoint + '?fsym=EOS&tsym=USD&limit=332')
+    res = requests.get(endpoint + '?fsym=EOS&tsym=USD&limit=370')
     return data_struct(res.json()['Data'])
 
 def data_struct(data):
@@ -33,27 +33,33 @@ def stoce_daily_price(datas, market, fsymbol, tsymbol):
     session.configure(bind=models.engine)
     s = session()
     for index, data in datas.iterrows():
-        dprice = s.query(DailyPrice).filter(DailyPrice.date == index, DailyPrice.fsymbol == fsymbol, DailyPrice.tsymbol == tsymbol).first()
-        if dprice is None:
-            dprice = DailyPrice(market=market, fsymbol=fsymbol, tsymbol=tsymbol, date=index)
-            s.add(dprice)
+        if data['volumefrom'] > 0:
+            dprice = s.query(DailyPrice).filter(DailyPrice.date == index, DailyPrice.fsymbol == fsymbol, DailyPrice.tsymbol == tsymbol).first()
+            if dprice is None:
+                dprice = DailyPrice(market=market, fsymbol=fsymbol, tsymbol=tsymbol, date=index)
+                s.add(dprice)
 
-        dprice.open_price = data['open']
-        dprice.high_price = data['high']
-        dprice.low_price = data['low']
-        dprice.close_price = data['close']
-        dprice.volumefrom = data['volumefrom']
-        dprice.volumeto = data['volumeto']
-        dprice.evm_7 = data['EVM_7']
-        dprice.evm_14 = data['EVM_14']
-        dprice.cci_30 = data['CCI']
-        dprice.roc_30 = data['ROC']
-        dprice.forceIndex_1 = data['ForceIndex']
-        s.commit()
+            dprice.open_price = data['open']
+            dprice.high_price = data['high']
+            dprice.low_price = data['low']
+            dprice.close_price = data['close']
+            dprice.volumefrom = data['volumefrom']
+            dprice.volumeto = data['volumeto']
+            if data['EVM_7'] > 0:
+                dprice.evm_7 = data['EVM_7']
+            if data['EVM_14'] > 0:
+                dprice.evm_14 = data['EVM_14']
+            if data['CCI'] > 0:
+                dprice.cci_30 = data['CCI']
+            if data['ROC'] > 0:
+                dprice.roc_30 = data['ROC']
+            if data['ForceIndex'] > 0:
+                dprice.forceIndex_1 = data['ForceIndex']
+            s.commit()
     s.close()
     print('finish!')
 
 
 if __name__ == '__main__':
-    # stoce_daily_price(btc_histories(), "ALL", "BTC", "USDT")
+    stoce_daily_price(btc_histories(), "ALL", "BTC", "USDT")
     stoce_daily_price(eos_histories(), "ALL", "EOS", "USDT")
