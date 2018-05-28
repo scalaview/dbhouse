@@ -42,12 +42,12 @@ def run_train(hist):
     np.random.seed(42)
     # data params
     window_len = 7
-    test_size = 0.1
+    test_size = 0.02
     zero_base = True
     # model params
     lstm_neurons = 20
-    epochs = 50
-    batch_size = 4
+    epochs = 1000
+    batch_size = 7
     loss = 'mae'
     dropout = 0.25
     optimizer = 'adam'
@@ -62,13 +62,14 @@ def run_train(hist):
     maer = mean_absolute_error(preds, y_test)
     print("mean_absolute_error: %f" % maer)
     preds = test[target_col].values[:-window_len] * (preds + 1)
-    preds = pd.Series(index=targets.index, data=preds)
+    preds = pd.Series(index=(targets.index + pd.DateOffset(1)), data=preds)
     line_plot(targets, preds, 'actual', 'prediction', lw=3)
+    print(hist['close_price'].tail())
     print(preds.tail())
     n_points = 7
     line_plot(targets[-n_points:], preds[-n_points:], 'actual', 'prediction', lw=3)
 
 if __name__ == '__main__':
-    run_train(prepare_train_data('EOS'))
+    run_train(prepare_train_data('BTC'))
 
 
