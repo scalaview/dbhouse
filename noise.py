@@ -32,4 +32,4 @@ def wt(data, keyname, wavefunc, level, m, n):
     # 为了避免出现负值的情况，取绝对值
     # abs_denoised_list = list(map(lambda x: abs(x), denoised_data_list))
     # 返回降噪结果
-    return denoised_index[1:]
+    return denoised_index

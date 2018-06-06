@@ -36,6 +36,9 @@ def prepare_train_data(syml):
     hist = pd.read_sql_query('SELECT `date`, open_price, high_price, low_price, close_price, volumeto, volumefrom FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT"', models.engine)
     hist = hist.set_index('date')
     hist.index = pd.to_datetime(hist.index, unit='s')
+    hist = hist.join(pd.Series(noise.wt(hist, 'open_price', 'db4', 4, 2, 4), name='denoised_open_price', index=hist.index))
+    hist = hist.join(pd.Series(noise.wt(hist, 'high_price', 'db4', 4, 2, 4), name='denoised_high_price', index=hist.index))
+    hist = hist.join(pd.Series(noise.wt(hist, 'low_price', 'db4', 4, 2, 4), name='denoised_low_price', index=hist.index))
     hist = hist.join(pd.Series(noise.wt(hist, 'close_price', 'db4', 4, 2, 4), name='denoised_close_price', index=hist.index))
     hist = hist.join(pd.Series(hist['denoised_close_price'].shift(-3), name='look_back_1_close_price'))
     return hist.fillna(0)
@@ -55,7 +58,7 @@ def run_train(hist):
     dropout = 0.0025
     optimizer = 'adam'
     target_col = 'look_back_1_close_price'
-    train, test, X_train, X_test, y_train, y_test = utils.prepare_data(hist[['open_price', 'high_price', 'low_price', 'volumeto', 'volumefrom', 'denoised_close_price', 'look_back_1_close_price']], target_col, window_len=window_len, zero_base=zero_base, test_size=test_size)
+    train, test, X_train, X_test, y_train, y_test = utils.prepare_data(hist[['denoised_open_price', 'denoised_high_price', 'denoised_low_price', 'volumeto', 'volumefrom', 'denoised_close_price', 'look_back_1_close_price']], target_col, window_len=window_len, zero_base=zero_base, test_size=test_size)
     for x, y, z in np.argwhere(np.isnan(X_train)):
         X_train[(x, y, z)] = 0
     model = build_lstm_model(X_train, output_size=1, neurons=lstm_neurons, dropout=dropout, loss=loss, optimizer=optimizer)
