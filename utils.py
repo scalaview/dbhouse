@@ -85,3 +85,12 @@ def prepare_data(df, target_col, window_len=10, zero_base=True, test_size=0.2):
     return train_data, test_data, X_train, X_test, y_train, y_test
 
 
+
+def standardization
+    from sklearn import preprocessing
+    import numpy as np
+    X = np.array([[ 1., -1.,  2.],
+                   [ 2.,  0.,  0.],
+                   [ 0.,  1., -1.]])
+    X_scaled = preprocessing.scale(X)
+    X_scaled
