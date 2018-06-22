@@ -45,3 +45,7 @@ venv
 log
 include/
 src/
+etc/
+share/
+
+**/.ipynb_checkpoints
