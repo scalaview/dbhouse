@@ -106,7 +106,7 @@ import utils
 
 def prepare_train_data(syml):
     import models
-    hist = pd.read_sql_query('SELECT `date` AS `tradeDate`, close_price AS closeIndex, volumefrom FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" and date between "2018-01-01" and "2018-06-13"', models.engine)
+    hist = pd.read_sql_query('SELECT `date` AS `tradeDate`, close_price AS closeIndex, volumefrom FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" and date between "2016-01-06" and "2018-06-13"', models.engine)
     return hist.fillna(0)
 
 
@@ -115,6 +115,7 @@ if __name__ == '__main__':
     # preTest(prepare_train_data('btc'), -2, 3)
     import utils
     line_plot = utils.line_plot
+    from sklearn import preprocessing
 
     # data = prepare_train_data('btc')
     # data = data.set_index('tradeDate')
@@ -124,13 +125,25 @@ if __name__ == '__main__':
     # diff_data = (diff_data/data * 100)
     # plt.plot(diff_data)
     # plt.show()
+    min_max_scaler = preprocessing.MinMaxScaler()
     data = prepare_train_data('btc')
     data = data.set_index('tradeDate')
     data.index = pd.to_datetime(data.index, unit='s')
-    diff_data = data["volumefrom"].diff()
-    diff_data = diff_data.shift(-1)
-    diff_data = (diff_data/data["volumefrom"] * 100)
-    from statsmodels.stats.diagnostic import acorr_ljungbox
-    print(acorr_ljungbox(diff_data.fillna(0), lags=4))
-    plt.plot(diff_data)
-    plt.show()
+    data["closeIndex"] = preprocessing.scale(data["closeIndex"])
+    diff_1_close_price = data["closeIndex"].diff(1).shift(-1)
+    diff_2_close_price = data["closeIndex"].diff(2).shift(-2)
+    diff_1_close_price = (diff_1_close_price/data["closeIndex"] * 100)
+    diff_2_close_price = (diff_2_close_price/data["closeIndex"] * 100)
+    diff_1_close_price = min_max_scaler.fit_transform(diff_1_close_price.values[:-1].reshape(-1, 1))
+
+
+    diff_1_data = data["volumefrom"].diff(1).shift(-1)
+    diff_2_data = data["volumefrom"].diff(2).shift(-2)
+    diff_1_data = (diff_1_data/data["volumefrom"])
+    diff_2_data = (diff_2_data/data["volumefrom"])
+    diff_1_data = min_max_scaler.fit_transform(diff_1_data.values[:-1].reshape(-1, 1))
+    # utils.scatter(diff_1_data.values[:-1], diff_1_close_price.values[:-1], "volumefrom", "close_price")
+    # from statsmodels.stats.diagnostic import acorr_ljungbox
+    # print(acorr_ljungbox(diff_1_data.fillna(0), lags=4))
+    # print(acorr_ljungbox(diff_2_data.fillna(0), lags=4))
+    utils.line_plot(diff_1_close_price, diff_1_data)

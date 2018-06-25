@@ -96,6 +96,22 @@ def line_plot(line1, line2, label1=None, label2=None, title='', lw=2):
     plt.show()
 
 
+
+def scatter(x, y, label1=None, label2=None, title=''):
+    fig, ax = plt.subplots(1, figsize=(16, 9))
+    #设置标题
+    ax.set_title(title)
+    #设置X轴标签
+    plt.xlabel(label1)
+    #设置Y轴标签
+    plt.ylabel(label2)
+    #画散点图
+    ax.scatter(x,y, c='r', marker='o')
+    #设置图标
+    plt.legend('x1')
+    #显示所画的图
+    plt.show()
+
 def standardization():
     from sklearn import preprocessing
     import numpy as np
