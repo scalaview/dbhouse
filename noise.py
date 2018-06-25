@@ -106,11 +106,31 @@ import utils
 
 def prepare_train_data(syml):
     import models
-    hist = pd.read_sql_query('SELECT `date` AS `tradeDate`, close_price AS closeIndex FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT"', models.engine)
+    hist = pd.read_sql_query('SELECT `date` AS `tradeDate`, close_price AS closeIndex, volumefrom FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" and date between "2018-01-01" and "2018-06-13"', models.engine)
     return hist.fillna(0)
 
 
 
 if __name__ == '__main__':
-    preTest(prepare_train_data('btc'), -2, 3)
+    # preTest(prepare_train_data('btc'), -2, 3)
+    import utils
+    line_plot = utils.line_plot
 
+    # data = prepare_train_data('btc')
+    # data = data.set_index('tradeDate')
+    # data.index = pd.to_datetime(data.index, unit='s')
+    # diff_data = data.diff()
+    # diff_data = diff_data.shift(-1)
+    # diff_data = (diff_data/data * 100)
+    # plt.plot(diff_data)
+    # plt.show()
+    data = prepare_train_data('btc')
+    data = data.set_index('tradeDate')
+    data.index = pd.to_datetime(data.index, unit='s')
+    diff_data = data["volumefrom"].diff()
+    diff_data = diff_data.shift(-1)
+    diff_data = (diff_data/data["volumefrom"] * 100)
+    from statsmodels.stats.diagnostic import acorr_ljungbox
+    print(acorr_ljungbox(diff_data.fillna(0), lags=4))
+    plt.plot(diff_data)
+    plt.show()

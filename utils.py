@@ -3,6 +3,7 @@ from pandas_datareader import data as web
 from datetime import datetime
 import numpy as np
 from numpy import inf
+import matplotlib.pyplot as plt
 # Force Index
 def force_index(data_close, data_volume, ndays, syml='ForceIndex'):
     return pd.Series(data_close.diff(ndays) * data_volume / 100000, name=syml)
@@ -85,8 +86,17 @@ def prepare_data(df, target_col, window_len=10, zero_base=True, test_size=0.2):
     return train_data, test_data, X_train, X_test, y_train, y_test
 
 
+def line_plot(line1, line2, label1=None, label2=None, title='', lw=2):
+    fig, ax = plt.subplots(1, figsize=(16, 9))
+    ax.plot(line1, label=label1, linewidth=lw)
+    ax.plot(line2, label=label2, linewidth=lw)
+    ax.set_ylabel('price [USD]', fontsize=14)
+    ax.set_title(title, fontsize=18)
+    ax.legend(loc='best', fontsize=18);
+    plt.show()
 
-def standardization
+
+def standardization():
     from sklearn import preprocessing
     import numpy as np
     X = np.array([[ 1., -1.,  2.],

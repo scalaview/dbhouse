@@ -8,6 +8,8 @@ from sklearn.metrics import mean_absolute_error
 import utils
 import noise
 
+line_plot = utils.line_plot
+
 def build_lstm_model(input_data, output_size, neurons=20, activ_func='linear',
                      dropout=0.25, loss='mae', optimizer='adam'):
     model = Sequential()
