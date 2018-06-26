@@ -32,5 +32,6 @@ class DailyPrice(BaseModel, Base):
     cci_30 = Column(Numeric(precision=16, scale=8, asdecimal=False, decimal_return_scale=None), default=0.00)
     roc_30 = Column(Numeric(precision=16, scale=8, asdecimal=False, decimal_return_scale=None), default=0.00)
     forceIndex_1 = Column(Numeric(precision=32, scale=8, asdecimal=False, decimal_return_scale=None), default=0.00)
-    tag = Column(Integer)
-    # ALTER TABLE daily_prices ADD tag int(11);
+    trend_tag = Column(Integer) # ALTER TABLE daily_prices ADD trend_tag int(11);
+    point_tag = Column(Integer)  # ALTER TABLE daily_prices ADD point_tag int(11);
+
