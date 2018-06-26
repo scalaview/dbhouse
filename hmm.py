@@ -10,7 +10,7 @@ from matplotlib import pyplot
 
 def prepare_train_data(syml):
     import models
-    hist = pd.read_sql_query('SELECT `date`, open_price, high_price AS high, low_price AS low, close_price AS close, volumeto AS volume FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" AND date between "2016-01-01" and "2018-06-24" ', models.engine)
+    hist = pd.read_sql_query('SELECT `date`, open_price, high_price AS high, low_price AS low, close_price AS close, volumeto AS volume FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" AND date between "2018-01-01" and "2018-06-24" ', models.engine)
     return hist
 
 def origin_hmm():
@@ -83,5 +83,5 @@ def my_hmm():
     plt.show()
 
 if __name__ == '__main__':
-    my_hmm()
+    # my_hmm()
     origin_hmm()
