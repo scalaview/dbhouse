@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def prepare_train_data(syml):
     import models
-    hist = pd.read_sql_query('SELECT `date`, close_price, id, trend_tag, point_tag FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" AND date between "2018-01-01" AND "2018-06-26"', models.engine)
+    hist = pd.read_sql_query('SELECT `date`, close_price, id, trend_tag, point_tag FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT"', models.engine)
     hist = hist.set_index('date')
     hist.index = pd.to_datetime(hist.index, unit='s')
     return hist.fillna(0)
@@ -72,7 +72,7 @@ def paint_plot_with_color(datelist, closeidx, latent_states_sequence, _range=(0,
     plt.show()
 
 if __name__ == '__main__':
-    # _range = find_points('btc')
-    # _range = sort_tag('btc')
+    _range = find_points('btc')
+    _range = sort_tag('btc')
     data = prepare_train_data('btc')
     paint_plot_with_color(data.index, data['close_price'].values, data['trend_tag'], range(0, 6))

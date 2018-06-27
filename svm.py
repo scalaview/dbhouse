@@ -2,11 +2,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import svm, datasets
-
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import StandardScaler
 
 def prepare_train_data(syml):
     import models
-    hist = pd.read_sql_query('SELECT `date`, close_price, volumefrom AS volume, trend_tag FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" AND date between "2016-01-01" AND "2018-06-26"', models.engine)
+    hist = pd.read_sql_query('SELECT `date`, close_price, volumefrom AS volume, trend_tag FROM daily_prices WHERE fsymbol="'+syml+'" AND tsymbol="USDT" AND date between "2016-01-01" AND "2017-10-26"', models.engine)
     hist = hist.set_index('date')
     hist.index = pd.to_datetime(hist.index, unit='s')
     diff_1_close_price = hist["close_price"].diff(1).shift(-1)
@@ -17,12 +19,24 @@ def prepare_train_data(syml):
     return hist.fillna(0)
 
 def build_modle():
-    C = 1.0  # SVM regularization parameter
+    C = 3  # SVM regularization parameter
     return {
-        "linear": svm.SVC(kernel='linear', C=C),
-        "rbf":  svm.SVC(kernel='rbf', gamma=0.7, C=C),
-        "poly": svm.SVC(kernel='poly', degree=3, C=C),
-        "linearsvc": svm.LinearSVC(C=C)
+        # "rbf":  svm.SVC(kernel='rbf', gamma=0.7, C=C),
+        # "linear": svm.SVC(kernel='linear', C=C),
+        "poly": Pipeline((
+            ("scaler", StandardScaler()),
+            ("svm_clf", svm.SVC(kernel="poly", degree=3, coef0=1, C=5))
+            )),
+        "rbf": Pipeline((
+            ("scaler", StandardScaler()),
+            ("svm_clf", svm.SVC(kernel="rbf", gamma=0.7, C=C))
+            )),
+        "linear": Pipeline((
+            ("scaler", StandardScaler()),
+            ("svm_clf", svm.SVC(kernel="linear", C=C))
+            )),
+        # "poly": svm.SVC(kernel='poly', degree=3, C=C),
+        # "linearsvc": svm.LinearSVC(C=C)
     }
 
 def fit(models, X, Y):
@@ -64,13 +78,14 @@ if __name__ == '__main__':
     X_test = X_test.reshape((nsamples,nx*ny))
     print("============================")
 
+
+
     result = fit(models, X_train, Y_train)
-    print(Y_test.tail(10))
+    print(Y_test)
     for key, fix_model in result.items():
         y_hat = fix_model.predict(X_test)
-        print(y_hat.tail(10))
-        print("============================")
-        break
+        print("============="+key+"===============")
+        print(y_hat)
 
 
 
