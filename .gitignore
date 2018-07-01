@@ -49,3 +49,5 @@ etc/
 share/
 
 **/.ipynb_checkpoints
+.DS_Store
+MNIST-data/
